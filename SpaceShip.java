@@ -1,8 +1,9 @@
+package com.SideScroller;
+
 import java.awt.*;
 
 public class SpaceShip {
-  
-  //MEMBER VARIABLES
+
 	double x;
 	double y;
 	double A;
@@ -19,14 +20,12 @@ public class SpaceShip {
 	static final int[] rightWingx = { 10, -10, -10, -10 };
 	static final int[] rightWingy = { -20, -35, -35, -20 };
 
-  //CONSTRUCTOR
 	public SpaceShip(int x, int y) {
 
 		this.x = x;
 		this.y = y;
 	}
 
-  //FUNCTIONS
 	public boolean isFiring(boolean b) {
 		boolean fire = b;
 		return b;

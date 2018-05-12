@@ -1,10 +1,13 @@
+package com.SideScroller;
+
 import java.awt.*;
+import java.awt.Graphics2D;
 
 public class Rect {
 
-	//MEMBER VARIABLES
-	int x;
-	int y;
+	// MEMBER VARIABLES
+	double x;
+	double y;
 	int w;
 	int h;
 	int dx = 0;
@@ -12,8 +15,8 @@ public class Rect {
 
 	boolean held = false;
 
-	//CONSTRUCTOR
-	public Rect(int x, int y, int w, int h) {
+	// CONSTRUCTOR
+	public Rect(double x, double y, int w, int h) {
 
 		this.x = x;
 		this.y = y;
@@ -21,16 +24,15 @@ public class Rect {
 		this.h = h;
 
 	}
-	
-	
-	//FUNCTIONS
+
+	// FUNCTIONS
 	public boolean overlaps(Rect r) { // checks to see if a rect is touching or inside another rect.
 
 		return (x < r.x + r.w) && (x + w > r.x) && (y < r.y + r.h) && (y + h > r.y);
 
 	}
 
-	public boolean contains(int mx, int my) {
+	public boolean contains(int mx, int my) {// sees if a mouse is inside a rectangle
 
 		return mx > x && mx < x + w && my > y && my < y + h;
 
@@ -48,9 +50,7 @@ public class Rect {
 
 	public void draw(Graphics g) {
 
-		g.drawRect(x, y, w, h);
-		if(x == 1000)
-			g.dispose();
+		g.drawRect((int) x, (int) y, w, h);
 
 	}
 

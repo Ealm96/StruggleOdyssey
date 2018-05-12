@@ -1,10 +1,11 @@
+package com.SideScroller;
+
 import java.awt.Graphics;
 
 import com.SideScroller.Lookup;
 
 public abstract class PolygonModel {
 
-  //MEMBER VARIABLES
 	double x;
 	double y;
 	double A;
@@ -16,7 +17,6 @@ public abstract class PolygonModel {
 
 	static final double radius = 35;
 
-  //CONSTRUCTOR
 	public PolygonModel(int x, int y, int A) {
 
 		this.x = x;
@@ -25,7 +25,6 @@ public abstract class PolygonModel {
 
 	}
 
-  //FUNCTIONS
 	public void draw(Graphics g) {
 
 		int[] xp = new int[4];

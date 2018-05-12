@@ -1,15 +1,12 @@
+package com.SideScroller;
+
 import java.awt.event.*;
-import java.util.*;
-//import java.applet.Applet;
-import java.awt.*;
-
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.awt.*;
+import java.util.LinkedList;
 
-import com.SideScroller.Animation;
-import com.SideScroller.Sprite;
+import com.SideScroller.ImageLayer;
+import com.SideScroller.*;
 
 public class SideScroller extends Canvas implements KeyListener, Runnable {
 
@@ -21,16 +18,20 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 	Image off_screen;
 	Graphics off_g;
 
-	String[] action = { "straight", "up", "down", "attack" };
-	Player player = new Player(0, 0, "z_", action, 16, 5);
+	String[] action = { "straight", "up", "down", "attack", "back" };
+	Player player;
 	SpaceCruiser spriteG = new SpaceCruiser(0, 200, "player_plane_", action, 2, 10);
+	ImageLayer il;
 
-	SpaceShip sp = new SpaceShip(100, 360);
-	Bullet r = new Bullet(-15, 5, 10, 5);
-	Bullet[] bullets = new Bullet[4];
+	EnemyCruiser[] ec = new EnemyCruiser[6];
+
+	Music m = new Music("Mercury.wav");
+
+	Bullet[] bullets = new Bullet[50];
 	private int b = 0;
 
 	Thread t;
+	GameOver go;
 
 	boolean lt_Pressed = false;
 	boolean rt_Pressed = false;
@@ -39,7 +40,7 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 	boolean sp_Pressed = false;
 	boolean a_Pressed = false;
 	boolean d_Pressed = false;
-	boolean c_Pressed = false;
+	boolean esc_Pressed = false;
 
 	// FUNCTIONS
 	public void init() { // Thread is used to let the game function outside of the user input and run
@@ -47,8 +48,15 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 		off_screen = this.createImage(dim.width, dim.height);
 		off_g = off_screen.getGraphics();
 
+		il = new ImageLayer("space_BkGrnd.png", 0, 0, 1);
+		player = new Player(0, 260, "z_", action, 18, 4);
+
 		for (int i = 0; i < bullets.length; i++) {// initializes the game with the array of bullets
-			bullets[i] = r;
+			bullets[i] = new Bullet(-15, -15, 10, 5);
+		}
+
+		for (int i = 0; i < ec.length; i++) {
+			ec[i] = new EnemyCruiser(1510, 30, "en_", action, 2, 10, 55, 30);
 		}
 
 		requestFocus();
@@ -61,7 +69,7 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 	// makes the game run and let's input react
 	public void run() {
 
-		while (true) {
+		while (spriteG.hp != 0) {
 
 			if (sp_Pressed) {
 				spriteG.shoot(bullets[b]);
@@ -69,7 +77,14 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 				if (b == bullets.length)
 					b = 0;
 			}
-			bullets[b].move();
+
+			for (int i = 0; i < bullets.length; i++) {
+
+				bullets[i].move();
+				bullets[i].dmgDealt(ec, spriteG);
+			}
+			il.scroll();
+			spriteG.CoolDown();
 			if (lt_Pressed)
 				spriteG.moveLeftBy(4);
 			if (rt_Pressed)
@@ -79,7 +94,16 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 			if (dn_Pressed)
 				spriteG.moveDownBy(4);
 			if (d_Pressed)
-				player.moveRightBy(2);
+				player.moveRightBy(3);
+			if (a_Pressed)
+				player.moveLeftBy(3);
+			if (esc_Pressed)
+				System.exit(0);
+			spriteG.increase();
+			spriteG.invFrame();
+			for (int i = 0; i < ec.length; i++) {
+				ec[i].approach(spriteG, bullets[b]);
+			}
 
 			repaint();
 
@@ -89,25 +113,38 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 
 			}
 		}
+
+		if (spriteG.hp == 0) {
+			m.stop();
+			go = new GameOver();
+		}
+
 	}
 
 	public void update(Graphics g) {
 
-		off_g.clearRect(0, 0, dim.width, dim.height);
+		off_g.clearRect(0, 0, 1000, 400);
 
 		paint(off_g);
 
 		g.drawImage(off_screen, 0, 0, null);
+		
 
 	}
 
 	// draws objects to the screen
 	public void paint(Graphics g) {
 
+		il.draw(g);
 		spriteG.draw(g);// draws our player when in their spaceship.
+		for (int i = 0; i < ec.length; i++) {
+			ec[i].draw(g);
+		}
 		for (int i = 0; i < bullets.length; i++) {
 			bullets[i].draw(g);
 		} // draws the bullets that the spaceship can use.
+
+		// g.drawString("Points: " + spriteG.amount , 0, 10);
 
 	}
 
@@ -127,14 +164,12 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 			d_Pressed = true;
 		if (code == e.VK_SPACE) {
 			sp_Pressed = true;
-			// spriteG.isFiring = true;
 		}
 		if (code == e.VK_A) {
 			a_Pressed = true;
-			player.isAtkng(true);
 		}
-		if (code == e.VK_C)
-			c_Pressed = true;
+		if (code == e.VK_ESCAPE)
+			esc_Pressed = true;
 	}
 
 	// setups what will happen when a key is released
@@ -153,12 +188,11 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 			d_Pressed = false;
 		if (code == e.VK_SPACE) {
 			sp_Pressed = false;
-			// spriteG.isFiring = false;
 		}
 		if (code == e.VK_A)
 			a_Pressed = false;
-		if (code == e.VK_C)
-			c_Pressed = false;
+		if (code == e.VK_ESCAPE)
+			esc_Pressed = false;
 	}
 
 	public void keyTyped(KeyEvent e) {
@@ -167,19 +201,17 @@ public class SideScroller extends Canvas implements KeyListener, Runnable {
 
 	public static void main(String[] args) {
 
-		JFrame frame = new JFrame("Side Scroller");
 		SideScroller game = new SideScroller();
-		frame.getContentPane().setBackground(Color.BLACK);
-
-		// frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		JFrame frame = new JFrame("Side Scroller");
+		frame.setUndecorated(true);
+		frame.requestFocus();
 		frame.setSize(1000, 400);
 		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(game);
-		frame.setResizable(true);
-		frame.setUndecorated(true);
+		frame.setResizable(false);
 		frame.setVisible(true);
 		game.init();
+
 	}
 
 }

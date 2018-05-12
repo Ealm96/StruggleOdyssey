@@ -1,21 +1,15 @@
 package com.SideScroller;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 
 import com.SideScroller.Animation;
 
-public abstract class Sprite {
+public abstract class Sprite extends Rect {
 
-	//MEMBER VARIABLES
+	// MEMBER VARIABLES
 	static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-
-	int x;
-	int y;
-	int dx = 0;
-	int dy = 0;
 
 	static final int STRAIGHT = 0;
 	static final int UP = 1;
@@ -23,17 +17,17 @@ public abstract class Sprite {
 	static final int ATTACK = 3;
 
 	Animation[] animation;
-	Animation atkAnim;
 
 	boolean moving = false;
 
 	int pose = STRAIGHT;
 
-	//CONSTRUCTOR
-	public Sprite(int x, int y, String file, String[] action, int count, int duration) {
+	String amount = "";
 
-		this.x = x;
-		this.y = y;
+	// CONSTRUCTOR
+	public Sprite(int x, int y, String file, String[] action, int count, int duration, int w, int h) {
+
+		super(x, y, w, h);
 
 		animation = new Animation[action.length];
 
@@ -41,9 +35,8 @@ public abstract class Sprite {
 			animation[i] = new Animation(file + action[i], count, duration);
 		}
 	}
-	
-	
-	//FUNCTIONS
+
+	// FUNCTIONS
 	public void move() {
 		x += dx;
 		y += dy;
@@ -79,34 +72,23 @@ public abstract class Sprite {
 	public void moveRightBy(int dx) {
 
 		x += dx;
-		if (x >= 945)
-			x = 945;
+		if (x >= 940)
+			x = 940;
 		moving = true;
 		pose = STRAIGHT;
-	}
-
-	public void checkBounds() {
-
-		if (x <= 0)
-			x = 0;
-		if (y <= 0)
-			y = 0;
-		if (x >= dim.width)
-			x = dim.width;
-		if (y >= dim.height)
-			y = dim.height;
-
 	}
 
 	public void draw(Graphics g) {
 
 		if (moving && pose == UP || pose == DOWN) {
-			g.drawImage(animation[pose].nextFlight(), x, y, null);
+			g.drawImage(animation[pose].nextFlight(), (int) x, (int) y, null);
 		} else {
-			g.drawImage(animation[pose].StillImage(), x, y, null);
+			g.drawImage(animation[pose].StillImage(), (int) x, (int) y, null);
 		}
 
+		g.drawString("Points: " + amount, 0, 10);
+
 		moving = false;
+
 	}
-	// */
 }

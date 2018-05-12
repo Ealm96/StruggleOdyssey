@@ -7,10 +7,10 @@ public class Animation {
 
 	Image[] image;
 
-	int current = 1;
-	int delay;
-	int duration;
-	int atkDuration;
+	private int current = 1;
+	private int delay;
+	private int duration;
+	private int atkDuration;
 
 	public Animation(String file, int count, int duration) {
 
@@ -23,7 +23,7 @@ public class Animation {
 		}
 
 		this.duration = duration;
-		atkDuration = 5;
+		atkDuration = 4;
 		delay = duration;
 
 	}
@@ -47,18 +47,20 @@ public class Animation {
 		return image[current];
 
 	}
-	public Image nextAttack(){
+
+	public Image nextAttack() {
 		if (delay == 0) {
 
 			current++;
 			if (current == image.length) {
-				current = 1;
+				current = 0;
 			}
 			delay = atkDuration;
 		} else {
 			delay--;
 		}
-		return image[current];
+
+		return image[0];
 	}
 
 	public Image nextImage() {
